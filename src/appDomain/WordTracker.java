@@ -7,29 +7,41 @@ import utilities.Iterator;
 import java.io.*;
 import java.util.Scanner;
 
+/**
+ * WordTracker tracks the occurrences of words in text files, including the file names and line numbers where they appear.
+ * The data is stored in a binary search tree for efficient organization and retrieval.
+ */
 public class WordTracker {
-    private static final String REPOSITORY_FILE = "repository.ser";
-    private BSTree<String> wordTree;
+    private static final String REPOSITORY_FILE = "repository.ser"; // File to save/load the word tree
+    private BSTree<String> wordTree; // Binary search tree to store words and their occurrences
 
+    /**
+     * Constructor initializes the WordTracker by loading a saved tree or creating a new one.
+     */
     public WordTracker() {
         this.wordTree = loadTree();
     }
 
+    /**
+     * Processes a text file, extracting words and tracking their occurrences in the tree.
+     * 
+     * @param fileName The name of the file to process.
+     */
     public void processFile(String fileName) {
         try (Scanner scanner = new Scanner(new File(fileName))) {
             int lineNumber = 0;
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 lineNumber++;
-                String[] words = line.split("\\W+");
+                String[] words = line.split("\\W+"); // Split by non-word characters
                 for (String word : words) {
-                    word = word.toLowerCase();
+                    word = word.toLowerCase(); // Normalize to lowercase
                     if (!word.isEmpty()) {
                         if (!wordTree.contains(word)) {
-                            wordTree.add(word);
+                            wordTree.add(word); // Add new word to the tree
                         }
-                        BSTreeNode<String> node = wordTree.search(word);
-                        node.addOccurrence(fileName, lineNumber);
+                        BSTreeNode<String> node = wordTree.search(word); // Find the node for the word
+                        node.addOccurrence(fileName, lineNumber); // Track where the word appears
                     }
                 }
             }
@@ -38,6 +50,9 @@ public class WordTracker {
         }
     }
 
+    /**
+     * Saves the current state of the word tree to a file for future use.
+     */
     public void saveTree() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(REPOSITORY_FILE))) {
             oos.writeObject(wordTree);
@@ -46,6 +61,11 @@ public class WordTracker {
         }
     }
 
+    /**
+     * Loads the word tree from a file if it exists; otherwise, creates a new tree.
+     * 
+     * @return The loaded or newly created tree.
+     */
     private BSTree<String> loadTree() {
         File file = new File(REPOSITORY_FILE);
         if (file.exists()) {
@@ -58,6 +78,11 @@ public class WordTracker {
         return new BSTree<>();
     }
 
+    /**
+     * The main method processes command-line arguments and generates reports based on user input.
+     * 
+     * @param args Command-line arguments specifying input file, report type, and optional output file.
+     */
     public static void main(String[] args) {
         if (args.length < 2) {
             System.err.println("Usage: java WordTracker <input.txt> -pf/-pl/-po [-f <output.txt>]");

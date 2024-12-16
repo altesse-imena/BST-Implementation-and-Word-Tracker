@@ -6,6 +6,16 @@ import java.io.Serializable;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
+/**
+ * A generic implementation of a Binary Search Tree (BST).
+ * 
+ * <p>This class provides standard operations like insertion, deletion, search, 
+ * and tree traversal (inorder, preorder, and postorder). It ensures that elements
+ * are stored in a sorted binary tree structure where elements in the left subtree 
+ * are less than the root, and elements in the right subtree are greater.
+ * 
+ * @param <E> The type of elements stored in the tree, which must implement Comparable.
+ */
 public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -159,100 +169,70 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Se
 
     @Override
     public Iterator<E> inorderIterator() {
-        return new Iterator<E>() {
-            private final Stack<BSTreeNode<E>> stack = new Stack<>();
-            private BSTreeNode<E> current = root;
-
-            {
-                while (current != null) {
-                    stack.push(current);
-                    current = current.getLeft();
-                }
-            }
-
-            @Override
-            public boolean hasNext() {
-                return !stack.isEmpty();
-            }
-
-            @Override
-            public E next() {
-                if (!hasNext()) 
-                    throw new NoSuchElementException();
-                BSTreeNode<E> node = stack.pop();
-                E data = node.getElement();
-                if (node.getRight() != null) {
-                    current = node.getRight();
-                    while (current != null) {
-                        stack.push(current);
-                        current = current.getLeft();
-                    }
-                }
-                return data;
-            }
-        };
+        return new TreeIterator(TreeTraversalOrder.INORDER);
     }
 
     @Override
     public Iterator<E> preorderIterator() {
-        return new Iterator<E>() {
-            private final Stack<BSTreeNode<E>> stack = new Stack<>();
-
-            {
-                if (root != null) 
-                    stack.push(root);
-            }
-
-            @Override
-            public boolean hasNext() {
-                return !stack.isEmpty();
-            }
-
-            @Override
-            public E next() {
-                if (!hasNext()) 
-                    throw new NoSuchElementException();
-                BSTreeNode<E> node = stack.pop();
-                E data = node.getElement();
-                if (node.getRight() != null) 
-                    stack.push(node.getRight());
-                if (node.getLeft() != null) 
-                    stack.push(node.getLeft());
-                return data;
-            }
-        };
+        return new TreeIterator(TreeTraversalOrder.PREORDER);
     }
 
     @Override
     public Iterator<E> postorderIterator() {
-        return new Iterator<E>() {
-            private final Stack<BSTreeNode<E>> stack1 = new Stack<>();
-            private final Stack<BSTreeNode<E>> stack2 = new Stack<>();
+        return new TreeIterator(TreeTraversalOrder.POSTORDER);
+    }
 
-            {
-                if (root != null) 
-                    stack1.push(root);
-                while (!stack1.isEmpty()) {
-                    BSTreeNode<E> node = stack1.pop();
-                    stack2.push(node);
-                    if (node.getLeft() != null) 
-                        stack1.push(node.getLeft());
-                    if (node.getRight() != null) 
-                        stack1.push(node.getRight());
-                }
-            }
+    private enum TreeTraversalOrder {
+        INORDER, PREORDER, POSTORDER
+    }
 
-            @Override
-            public boolean hasNext() {
-                return !stack2.isEmpty();
-            }
+    private class TreeIterator implements Iterator<E> {
+        private final Stack<BSTreeNode<E>> stack = new Stack<>();
+        private BSTreeNode<E> current;
 
-            @Override
-            public E next() {
-                if (!hasNext()) 
-                    throw new NoSuchElementException();
-                return stack2.pop().getElement();
+        public TreeIterator(TreeTraversalOrder order) {
+            current = root;
+            if (order == TreeTraversalOrder.INORDER) {
+                pushLeft(current);
+            } else if (order == TreeTraversalOrder.PREORDER) {
+                if (current != null) stack.push(current);
+            } else if (order == TreeTraversalOrder.POSTORDER) {
+                pushPostorder(current);
             }
-        };
+        }
+
+        private void pushLeft(BSTreeNode<E> node) {
+            while (node != null) {
+                stack.push(node);
+                node = node.getLeft();
+            }
+        }
+
+        private void pushPostorder(BSTreeNode<E> node) {
+            Stack<BSTreeNode<E>> tempStack = new Stack<>();
+            if (node != null) tempStack.push(node);
+            while (!tempStack.isEmpty()) {
+                BSTreeNode<E> n = tempStack.pop();
+                stack.push(n);
+                if (n.getLeft() != null) tempStack.push(n.getLeft());
+                if (n.getRight() != null) tempStack.push(n.getRight());
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !stack.isEmpty();
+        }
+
+        @Override
+        public E next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            BSTreeNode<E> node = stack.pop();
+            if (!stack.isEmpty() && stack.peek() == node.getRight()) {
+                pushLeft(node.getRight());
+            }
+            return node.getElement();
+        }
     }
 }
+

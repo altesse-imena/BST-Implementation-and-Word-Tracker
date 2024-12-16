@@ -7,25 +7,25 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * BSTreeNode.java
- *
- * A class representing a node in a Binary Search Tree (BST).
- * Each node stores an element, references to its left and right children,
- * and metadata to track occurrences of the element (file names and line numbers).
+ * Represents a single node in a Binary Search Tree (BST).
  * 
- * @param <E> The type of element stored in this node, which must be comparable.
+ * @param <E> The type of the element stored in the node. It must be comparable.
  */
 public class BSTreeNode<E extends Comparable<? super E>> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private E element;                       // The data element stored in the node
-    private BSTreeNode<E> left;              // Reference to the left child
-    private BSTreeNode<E> right;             // Reference to the right child
-    private Map<String, Set<Integer>> occurrences; // Metadata: file names and line numbers
+    // The element stored in the node
+    private E element;
+
+    // References to the left and right child nodes
+    private BSTreeNode<E> left;
+    private BSTreeNode<E> right;
+
+    // A map to track where this element appears in files and line numbers
+    private Map<String, Set<Integer>> occurrences;
 
     /**
-     * Constructs a new BSTreeNode with the specified element.
-     * Initializes the left and right children to null, and sets up an empty metadata map.
+     * Creates a new BSTreeNode with a given element.
      * 
      * @param element The element to store in the node.
      */
@@ -37,7 +37,7 @@ public class BSTreeNode<E extends Comparable<? super E>> implements Serializable
     }
 
     /**
-     * Retrieves the element stored in the node.
+     * Gets the element stored in this node.
      * 
      * @return The element stored in the node.
      */
@@ -46,7 +46,7 @@ public class BSTreeNode<E extends Comparable<? super E>> implements Serializable
     }
 
     /**
-     * Sets the element stored in the node.
+     * Updates the element stored in this node.
      * 
      * @param element The new element to store in the node.
      */
@@ -55,16 +55,16 @@ public class BSTreeNode<E extends Comparable<? super E>> implements Serializable
     }
 
     /**
-     * Retrieves the left child of the node.
+     * Gets the left child of this node.
      * 
-     * @return The left child node, or null if no left child exists.
+     * @return The left child node, or null if there is no left child.
      */
     public BSTreeNode<E> getLeft() {
         return left;
     }
 
     /**
-     * Sets the left child of the node.
+     * Sets the left child of this node.
      * 
      * @param left The node to set as the left child.
      */
@@ -73,16 +73,16 @@ public class BSTreeNode<E extends Comparable<? super E>> implements Serializable
     }
 
     /**
-     * Retrieves the right child of the node.
+     * Gets the right child of this node.
      * 
-     * @return The right child node, or null if no right child exists.
+     * @return The right child node, or null if there is no right child.
      */
     public BSTreeNode<E> getRight() {
         return right;
     }
 
     /**
-     * Sets the right child of the node.
+     * Sets the right child of this node.
      * 
      * @param right The node to set as the right child.
      */
@@ -91,19 +91,19 @@ public class BSTreeNode<E extends Comparable<? super E>> implements Serializable
     }
 
     /**
-     * Adds an occurrence of the element in a specified file and line number.
+     * Adds a record of where this element appears in a file and line number.
      * 
-     * @param fileName The name of the file where the element occurs.
-     * @param lineNumber The line number where the element occurs in the file.
+     * @param fileName   The name of the file where the element is found.
+     * @param lineNumber The line number in the file where the element is found.
      */
     public void addOccurrence(String fileName, int lineNumber) {
         occurrences.computeIfAbsent(fileName, k -> new HashSet<>()).add(lineNumber);
     }
 
     /**
-     * Retrieves the metadata (file names and line numbers) associated with the element.
+     * Gets the map of file names and line numbers where this element occurs.
      * 
-     * @return A map where keys are file names and values are sets of line numbers.
+     * @return A map with file names as keys and sets of line numbers as values.
      */
     public Map<String, Set<Integer>> getOccurrences() {
         return occurrences;
